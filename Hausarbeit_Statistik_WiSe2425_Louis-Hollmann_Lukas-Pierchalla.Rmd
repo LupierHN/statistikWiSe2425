@@ -1,0 +1,353 @@
+---
+title: "Hausarbeit_Statistik_WiSe2425_Louis-Hollmann_Lukas-Pierchalla"
+author: "Louis Hollmann, Lukas Pierchalla"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Einleitung
+
+Die vorliegende Analyse untersucht Kraftstoffpreise in Berlin mithilfe von statistischen Methoden. Ziel ist es, Trends, Unterschiede zwischen Tankstellen sowie Einflussfaktoren auf die Preise zu identifizieren. Hierzu werden die Kraftstoffpreise für E5, E10 und Diesel analysiert und mit verschiedenen Merkmalen wie Tankstellenmarken, Wochentagen und Feiertagen in Beziehung gesetzt. Die Analyse basiert auf einem Datensatz, der die Kraftstoffpreise für verschiedene Tankstellen in Berlin über einen Zeitraum von fast einem Jahr enthält.
+
+# Import und erste Überprüfung der Daten
+
+Der Datensatz wird in R importiert und auf fehlende Werte überprüft. Erste Maßnahmen werden ergriffen, um fehlende Werte und Inkonsistenz zu identifizieren und zu korrigieren.
+
+```{r}
+# Daten importieren
+datensatz <- read.csv2("tankerkoenigWS2024.csv", header = TRUE, sep = ",", dec = ".")
+```
+
+## Fehlende Werte
+
+```{r}
+# Summe der fehlenden Werte anzeigen
+print(sum(is.na(datensatz)))
+
+```
+
+Die Gesamtanzahl der fehlenden Werte wurde ermittelt. Hierdurch fällt auf das fehlende Werte existieren welche behandelt werden müssen, ebenfalls ist die Anzahl dieser nun bekannt. Um weitere Maßnahmen zu ergreifen wird überprüft welche Spalten betroffen sind und wie viele fehlende Werte es in den einzelnen Spalten gibt.
+
+```{r}
+# Spalten mit Anzahl der fehlender Werte anzeigen
+print(colSums(is.na(datensatz)))
+```
+
+Dies lässt darauf schließen, dass lediglich in der Spalte "house_number" fehlende Werte existieren. Um die Ursache für die fehlenden Werte zu ermitteln, werden die ersten 5 Zeilen des Datensatzes mit fehlenden Werten überprüft.
+
+```{r}
+# Erste 5 Zeilen mit fehlenden Werten anzeigen
+print(datensatz[!complete.cases(datensatz),][1:5,])
+```
+
+Die ersten 5 Zeilen mit fehlenden Werten zeigen, dass die fehlenden Werte in der Spalte "house_number" auftreten, wenn die Spalte "street" eine Hausnummer enthält. Um die fehlenden Werte zu korrigieren, werden die Hausnummern aus der Spalte "street" extrahiert und in die Spalte "house_number" eingesetzt. Nach der Anpassung des Datensatzes wird überprüft, ob die Anpassung erfolgreich war und ob noch weitere fehlende Werte vorhanden sind. Hierfür wird exemplarisch eine Zeile mit fehlerhaften Werten vor und nach der Anpassung des Datensatzes angezeigt.
+
+```{r}
+# Zeile vor Anpassung des Datensatzes
+print(datensatz[datensatz$X == 156865, c("street", "house_number")])
+```
+
+```{r}
+# Erster Versuch Anpassung des Datensatzes um formattierung zu korrigieren
+for (i in seq_len(nrow(datensatz))) {
+  if (is.na(datensatz$house_number[i]) && grepl("\\d", datensatz$street[i])) {
+    datensatz$house_number[i] <- sub(".*?(\\d.*)", "\\1", datensatz$street[i]) # Extrahiert Hausnummer
+    datensatz$street[i] <- sub("(.*?)(\\d.*)", "\\1", datensatz$street[i]) # Beibehält nur die Straße
+  }
+}
+# Zeile nach Anpassung des Datensatzes
+print(datensatz[datensatz$X == 156865, c("street", "house_number")])
+
+```
+
+```{r}
+# Prüfen ob alle fehlenden Werte korrigiert wurden
+print(sum(is.na(datensatz)))
+```
+
+Da die fehlenden Werte erfolgreich korrigiert wurden, sind keine fehlerhaften Werte mehr im Datensatz vorhanden. Der Datensatz ist bereit für die weitere Analyse.
+
+## Überprüfung der Daten auf Inkonsistenzen
+
+Zu Beginn wird ein Überblick über den Inhalt des Datensatzes verschafft und die 5-Punkte-Zusammenfassung der numerischen Variablen angezeigt und überprüft.
+
+```{r}
+print(summary(datensatz))
+```
+
+Folgende Inhalte sind im Datensatz enthalten und werden tabellarisch dargestellt: 
+| X | id | date | time | name | brand | street | house_number | post_code | opening_time | closing_time | e5_median | e10_median | diesel_median | 
+|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----| 
+| ID der Zeile | ID der Tankstelle | Datum der Beobachtung | Uhrzeit der Beobachtung | Name der Tankstelle | Marke der Tankstelle | Straße der Tankstelle | Hausnummer der Tankstelle | Postleitzahl der Tankstelle | Öffnungszeit der Tankstelle | Schließzeit der Tankstelle | Medianpreis für Kraftstoff E5 | Medianpreis für Kraftstoff E10 | Medianpreis für Kraftstoff Diesel |
+
+Bei der 5-Punkte-Zusammenfassung der Diesel-Preise fällt auf das Ausreißer existieren. Dies wird durch den überdurchschnittlichen Abstand des kleinsten Wertes zum 1. Quartil besonders deutlich. Um die Ausreißer besser zu erkennen, wird ein Boxplot der Diesel-Preise verwendet.
+
+```{r}
+# Werteverteilung der Spalte "diesel_median"
+boxplot(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise (Diesel)", ylab = "Preis in 1/10 Cent", col = "lightblue")
+```
+
+Dem angezeigten Boxplot ist zu entnehmen das Ausreißer in der Spalte "diesel_median" vorhanden sind. Da der Ausreißer bei ca. 80 Cent liegt und keine vergleichbaren Werte in der Nähe vorhanden sind, wird der Ausreißer als fehlerhafter Wert betrachtet. Um die Daten zu bereinigen und unser Ergebnis nicht zu verfälschen, wird der fehlerhafte Wert entfernt.
+
+```{r}
+# Ausreißer entfernen
+datensatz <- datensatz[datensatz$diesel_median > 1000,]
+# Erneute Überprüfung der Daten
+print(summary(datensatz$diesel_median))
+boxplot(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise (Diesel)", ylab = "Preis in 1/10 Cent", col = "lightblue")
+```
+
+Der fehlerhafte Wert wurde erfolgreich entfernt und die Verteilung der Kraftstoffpreise für Diesel wurde korrigiert. Die 5-Punkte-Zusammenfassung sowie der Boxplot der Daten Diesel weisen keine weiteren Inkonsistenzen auf und der Datensatz ist bereit für die weitere Analyse.
+
+## Exploration der Daten
+
+Um die Struktur sowie den Inhalt der Daten nachzuvollziehen werden die ersten 5 Zeilen des Datensatzes angezeigt.
+
+```{r}
+head(datensatz, 5)
+```
+
+Aus den ersten 5 Zeilen des Datensatzes können wir erkennen, dass die Daten die folgenden Spalten enthalten: ID, Datum, Uhrzeit, Name der Tankstelle, Marke der Tankstelle, Straße der Tankstelle, Hausnummer der Tankstelle, Postleitzahl der Tankstelle, Öffnungszeit der Tankstelle, Schließzeit der Tankstelle, Medianpreis für Kraftstoff E5, Medianpreis für Kraftstoff E10 und Medianpreis für Kraftstoff Diesel. Dabei gibt die ID der Tankstelle an, date das Datum der Beobachtung und time die Uhrzeit der Beobachtung, wobei diese jeweils eine Stunde auseinanderliegen. Die Spalten e5_median, e10_median und diesel_median enthalten die Medianpreise für die Kraftstoffarten E5, E10 und Diesel dieser jeweiligen Stunde. Name, brand, street, house_number und post_code enthalten Informationen zur Tankstelle. Opening_time und closing_time die Öffnungs- und Schließzeiten der Tankstelle.
+
+# Allgemeine Untersuchung
+
+## Erste Überprüfung der Daten
+
+Für eine erste Überprüfung der Daten werden Anzahl der Tankstellen, Beobachtungen, Marken, Straßen, Postleitzahlen, Öffnungszeiten, Schließzeiten und Daten ermittelt. Dazu werden die Anzahl der einzigartigen Werte in den jeweiligen Spalten gezählt.
+
+```{r}
+uebersicht <- data.frame(
+  Kategorie = c("Anzahl der Tankstellen", "Anzahl der Beobachtungen", "Anzahl der Marken", "Anzahl der Straßen", "Anzahl der Postleitzahlen", "Anzahl der Öffnungszeiten", "Anzahl der Schließzeiten", "Anzahl der Daten"),
+  Anzahl = c(length(unique(datensatz$id)), nrow(datensatz), length(unique(datensatz$brand)), length(unique(datensatz$street)), length(unique(datensatz$post_code)), length(unique(datensatz$opening_time)), length(unique(datensatz$closing_time)), length(unique(datensatz$date)))
+)
+
+print(uebersicht)
+```
+
+Die Vielfalt der Daten zeigt, dass diese für eine statistische Analyse gut geeignet sind. Mit 37 Tankstellen, 9 Marken, 35 Straßen, 34 Postleitzahlen, 5 verschiedenen Öffnungszeiten, 7 Schließzeiten und 259 einzigartigen Datumswerten ist der Umfang der Daten ausreichend groß, um repräsentative Ergebnisse zu erzielen.
+
+Im nächsten Schritt werden potenzielle Analysemethoden untersucht. Dabei werden Merkmalskombinationen betrachtet und geeignete Untersuchungsansätze formuliert.
+
+Das Verhältnis von 9 Marken zu 37 Tankstellen ermöglicht es, die Marken miteinander zu vergleichen. Die Datenbasis ist für diesen Vergleich ausreichend, da genügend Datenpunkte vorhanden sind, um statistisch signifikante Ergebnisse zu erzielen. Im Gegensatz dazu ist das Verhältnis von 37 Tankstellen zu 34 Postleitzahlen weniger für eine Analyse geeignet, da hier die Datenbasis zu gering ist, um repräsentative und statistisch signifikante Ergebnisse zu erhalten. Stattdessen könnten Tankstellen und ihre zugehörigen Postleitzahlen auf Bezirksebene analysiert werden, um aussagekräftigere Ergebnisse zu erzielen.
+
+Die 259 einzigartigen Datumswerte zeigen, dass die Daten über einen längeren Zeitraum hinweg erhoben wurden, wodurch sich zeitliche Trends und Entwicklungen zuverlässig untersuchen lassen.
+
+## Häufigkeitsverteilung der Preise
+
+Nun wird die Häufigkeitsverteilung der Kraftstoffpreise für E5, E10 und Diesel untersucht. Dazu werden Histogramme für jeden Kraftstofftyp erstellt welche die Verteilungen der Preise anzeigen. Hiermit wird ein Vergleich der Preisverteilung zwischen den Kraftstoffarten ermöglicht.
+
+```{r}
+# Histogramme für jeden Kraftstofftyp auf gleicher Skala
+par(mfrow = c(1, 3))
+hist(datensatz$e5_median, main = "Verteilung der Kraftstoffpreise (E5)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 15, ylim = c(0, 60000), xlim = c(1500, 2300))
+hist(datensatz$e10_median, main = "Verteilung der Kraftstoffpreise (E10)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 15, ylim = c(0, 60000), xlim = c(1500, 2300))
+hist(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise (Diesel)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 15, ylim = c(0, 60000), xlim = c(1500, 2300))
+```
+
+Aus den Histogrammen ist erkennbar, dass die Verteilungen der Kraftstoffpreise für E5 und E10 ähnlich sind, während die Verteilung der Dieselpreise davon abweicht. Dies legt nahe, dass die Preise für E5 und E10 stärker miteinander korrelieren könnten als die Preise für Diesel.
+
+Die Verteilungen aller drei Kraftstoffarten zeigen eine weitgehend symmetrische Form, wobei die Preise um einen zentralen Mittelwert schwanken und extreme Werte seltener auftreten. Die Streuung der Preise ist bei Diesel größer als bei E5 und E10, was auf eine höhere Varianz hinweist. Während bei E5 und E10 nur wenige Ausreißer vorhanden sind, zeigt Diesel eine breitere Verteilung mit einer höheren Anzahl an Werten in den Randbereichen. Dies deutet darauf hin, dass die Dieselpreise stärkeren Schwankungen unterliegen als die Preise für E5 und E10.
+
+Die äußeren Bereiche der Verteilungen für E5 und E10 zeigen ähnliche Muster: Der Anstieg der Preise ist nahezu symmetrisch. Diesel hingegen weist eine asymmetrische Verteilung auf. Es gibt nur wenige günstigere Ausreißer, aber eine deutlich höhere Anzahl Ausreißer im teureren Bereich.
+
+Der Schwerpunkt der Preise liegt bei: - E5: etwa 182 Cent, - E10: etwa 177 Cent, - Diesel: etwa 167 Cent. Dies bestätigt, dass die Preise für E5 und E10 tendenziell höher liegen als die Dieselpreise. Gleichzeitig könnte die stärkere Streuung bei Diesel darauf hindeuten, dass externe Faktoren wie Marktbedingungen oder Steuerregelungen einen größeren Einfluss auf dessen Preisgestaltung haben.
+
+Anhand einer abweichenden Gruppierung werden neue Histogramme erstellt, um die Verteilung der Kraftstoffpreise genauer zu untersuchen.
+
+```{r}
+par(mfrow = c(1, 3))
+hist(datensatz$e5_median, main = "Verteilung der Kraftstoffpreise (E5)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+hist(datensatz$e10_median, main = "Verteilung der Kraftstoffpreise (E10)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+hist(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise (Diesel)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+```
+
+Die neuen Histogramme mit kleineren Gruppierungen bestätigen unsere bisherige Überprüfung der Kraftstoffpreise von E5 und E10. Bei Diesel zeigt sich eine Diskrepanz zum vorherigen Histogramm. Anstatt von einem Peak bei ca. 167 Cent zeigt sich nun ein weiterer Peak bei ca. 180 Cent. Außerdem ist erkennbar, dass die Dieselpreisverteilung deutlich rechtsschief ist. Dies bedeutet, dass es mehr Preise gibt, die sich im günstigeren Bereich befinden als im teureren Bereich.
+
+### Untersuchung der Streuung der Kraftstoffpreise
+
+Anschließend werden die Medianpreise, das arithmetische Mittel und die Standardabweichung für E5, E10 und Diesel berechnet und verglichen.
+
+```{r}
+par(mfrow = c(1, 3))
+hist(datensatz$e5_median, main = "Verteilung der Kraftstoffpreise (E5)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+abline(v = median(datensatz$e5_median), col = "red", lwd = 2)
+abline(v = mean(datensatz$e5_median), col = "blue", lwd = 2)
+abline(v = mean(datensatz$e5_median) + sd(datensatz$e5_median), col = "green", lwd = 2)
+abline(v = mean(datensatz$e5_median) - sd(datensatz$e5_median), col = "green", lwd = 2)
+legend("topright", legend = c("Median", "Arithmetisches Mittel", "Standardabweichung"), col = c("red", "blue", "green"), lty = 1, lwd = 2)
+hist(datensatz$e10_median, main = "Verteilung der Kraftstoffpreise (E10)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+abline(v = median(datensatz$e10_median), col = "red", lwd = 2)
+abline(v = mean(datensatz$e10_median), col = "blue", lwd = 2)
+abline(v = mean(datensatz$e10_median) + sd(datensatz$e10_median), col = "green", lwd = 2)
+abline(v = mean(datensatz$e10_median) - sd(datensatz$e10_median), col = "green", lwd = 2)
+legend("topright", legend = c("Median", "Arithmetisches Mittel", "Standardabweichung"), col = c("red", "blue", "green"), lty = 1, lwd = 2)
+hist(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise (Diesel)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+abline(v = median(datensatz$diesel_median), col = "red", lwd = 2)
+abline(v = mean(datensatz$diesel_median), col = "blue", lwd = 2)
+abline(v = mean(datensatz$diesel_median) + sd(datensatz$diesel_median), col = "green", lwd = 2)
+abline(v = mean(datensatz$diesel_median) - sd(datensatz$diesel_median), col = "green", lwd = 2)
+legend("topright", legend = c("Median", "Arithmetisches Mittel", "Standardabweichung"), col = c("red", "blue", "green"), lty = 1, lwd = 2)
+```
+
+In einer ersten grafischen Darstellung werden die Medianpreise, das arithmetische Mittel und die Standardabweichung für E5, E10 und Diesel verglichen. Die rote Linie zeigt den Median, die blaue Linie das arithmetische Mittel und die grünen Linien die Standardabweichung. Es ist zu erkennen, dass die Standardabweichung bei Diesel am höchsten ist, was auf eine größere Streuung der Preise hinweist. Die Standardabweichung bei E5 und E10 ist geringer, was auf eine stabilere Preisentwicklung hindeutet. Der Medianpreis für E5 und E10 liegt nahe beieinander, während der Medianpreis für Diesel niedriger ist. Dies bestätigt die Beobachtungen aus den vorherigen Histogrammen.
+
+Um nicht nur grafisch, sondern auch in tabellarischer Form die Unterschiede zwischen den Kraftstoffarten zu analysieren, werden die Medianpreise, das arithmetische Mittel und die Standardabweichung für E5, E10 und Diesel berechnet und in einer Tabelle dargestellt.
+
+```{r}
+# Medianpreise, arithmetisches Mittel und Standardabweichung für E5, E10 und Diesel
+bez <- c("E5", "E10", "Diesel")
+masd <- data.frame(bez, c(median(datensatz$e5_median), median(datensatz$e10_median), median(datensatz$diesel_median)), round(c(mean(datensatz$e5_median), mean(datensatz$e10_median), mean(datensatz$diesel_median)), 2), round(c(sd(datensatz$e5_median), sd(datensatz$e10_median), sd(datensatz$diesel_median)), 2))
+colnames(masd) <- c("Kraftstoff", "Median", "Arithmetisches Mittel", "Standardabweichung")
+masd
+```
+
+Die Tabelle zeigt, dass die Standardabweichung bei E5 und E10 fast identisch ist, während sie bei Diesel deutlich höher ist. Dies bestätigt die Beobachtungen aus den Histogrammen und Boxplots. Der Medianpreis für E5 und E10 liegt sehr nah beim jeweiligen arithmetischen Mittel, während der Medianpreis für Diesel etwas niedriger ist. Dies ist durch die höhere Streuung der Dieselpreise zu erklären.
+
+Als letzter Schritt wird die Streuung der Kraftstoffpreise für E5, E10 und Diesel in einem Boxplot dargestellt, um die Unterschiede in der Verteilung der Preise zu verdeutlichen.
+
+```{r}
+# Verteilung der Kraftstoffpreise nach Kraftstoffart
+boxplot(cbind(datensatz$e5_median, datensatz$e10_median, datensatz$diesel_median), main = "Verteilung der Kraftstoffpreise nach Kraftstoffart", ylab = "Preis in 1/10 Cent", col = "lightblue", names = c("E5", "E10", "Diesel"))
+```
+
+#### E5 und E10
+
+Die Boxplots zeigen, dass die Preisverteilung von E5 und E10 insgesamt sehr ähnlich ist. Jedoch ist E5 tendenziell etwas teurer als E10. Die Streuung der Preise (IQR) ist bei beiden Kraftstoffarten vergleichbar, was auf eine parallele Preisentwicklung hindeutet. Auffällig sind in beiden Fällen einige starke Ausreißer im oberen Preisbereich.
+
+#### Diesel
+
+Die Preise für Diesel weisen eine größere Streuung auf als die von E5 und E10. Dies zeigt sich insbesondere am deutlich längeren oberen Whisker, der eine stärkere Preisstreuung im oberen Bereich verdeutlicht. Der IQR ist ebenfalls größer, was auf eine höhere Variabilität der Dieselpreise hinweist. Zudem treten bei Diesel ausgeprägtere Ausreißer im oberen Preisbereich auf, die stärker als bei E5 und E10 ins Gewicht fallen.
+
+## Zeitliche Entwicklung der Kraftstoffpreise
+
+Der Preisverlauf der drei Kraftstoffarten E5, E10 und Diesel wird über die Zeit untersucht. Dazu werden die durchschnittlichen Preise für jeden Tag berechnet und in einem Liniendiagramm dargestellt.
+Als zusätzliche Information werden die Schulferien in Berlin für das Jahr 2023 in das Diagramm eingefügt, sowie die durchschnittlichen Preise für E5, E10 und Diesel als gestrichelte Linie.
+
+```{r}
+# Preisverlauf über Zeit der drei Kraftstoffarten für jeden Tag der durchschnittliche Preis
+# Daten vorbereiten
+datensatz$date <- as.Date(datensatz$date)
+#Schulferien in Berlin importieren
+schulferien <- read.csv2("SchulferienBerlin2023.csv", header = TRUE, sep = ";", dec = ".")
+schulferien$StartDate <- as.Date(schulferien$StartDate)
+schulferien$EndDate <- as.Date(schulferien$EndDate)
+# Durchschnittliche Preise für jeden Tag berechnen
+durchschnittspreise <- aggregate(datensatz[,c("e5_median", "e10_median", "diesel_median")], by = list(datensatz$date), FUN = mean)
+plot(durchschnittspreise$Group.1, durchschnittspreise$e5_median, type = "l", col = "blue", xlab = "Datum", ylab = "Preis in 1/10 Cent", main = "Preisverlauf von E5, E10 & Diesel ueber die Zeit", ylim = c(1500, 2000))
+lines(durchschnittspreise$Group.1, durchschnittspreise$e10_median, col = "red")
+lines(durchschnittspreise$Group.1, durchschnittspreise$diesel_median, col = "green")
+abline(h = c(1843.16, 1784.32, 1726.11), col = c("blue", "red", "green"), lty = 2)
+for (i in seq_len(nrow(schulferien))) {
+  rect(schulferien$StartDate[i], 1500, schulferien$EndDate[i], 2000, col = "lightgrey", border = NA, density = 5)
+}
+legend("bottomleft", legend = c("E5", "E10", "Diesel"), col = c("blue", "red", "green"), lty = 1, bty = "n", cex = 0.8)
+legend("topright", legend = "Schulferien", fill = "lightgrey", density = 25, bty = "n", cex = 0.8)
+legend("bottomright", legend = c("E5 - mean", "E10 - mean", "Diesel - mean"), col = c("blue", "red", "green"), lty = 2, bty = "n", cex = 0.8)
+
+```
+
+Aus dem Liniendiagramm ist ersichtlich, dass die Preise für E5 und E10 über den Zeitraum zwar schwankungen unterliegen, aber die Preise für Diesel viel stärkere Schwankungen zeigen. Die durchschnittlichen Preise für E5 und E10 zeigen eine ähnliche Entwicklung, dies deutet darauf hin, dass die Preise für E5 und E10 miteinander korrelieren. Die Preise für Diesel hingegen weisen eine stärkere Varianz auf.
+Die Schulferien in Berlin sind im Diagramm als graue hervorgehoben dargestellt. Es ist zu erkennen, dass die Preise während der Schulferien in 2 von 3 Fällen auffällig ansteigen. Dies könnte darauf hindeuten, dass die Nachfrage nach Kraftstoff während der Ferienzeit steigt und die Preise entsprechend angepasst werden.
+Die vorherige Untersuchung der Kraftstoffpreise zeigte, dass die E5 preise tendenziell höher sind als die E10 Preise. Dies wird durch das Liniendiagramm bestätigt, da die durchschnittlichen Preise für E5 über den gesamten Zeitraum über denen von E10 liegen. Diesel hingegen weist die niedrigsten Preise auf, was ebenfalls mit den vorherigen Ergebnissen übereinstimmt. Eine Ausnahme bildet der Zeitraum vor Februar, in dem die Diesel Preise kurzzeitig über denen von E5 liegen. Ab Mai sinken die Diesel Preise jedoch wieder und liegen weit unter denen von E5 und E10. Dies ist auf die sehr niedrigen Rohölnotierungen zurückzuführen, die zu einem Preisverfall bei Diesel geführt haben.
+*Quelle: <https://presse.adac.de/meldungen/adac-ev/verkehr/diesel-im-mai-auf-jahrestiefststand.html>*
+
+### Korrelation zwischen den Kraftstoffpreisen
+
+Um den Zusammenhang zwischen den Kraftstoffpreisen zu untersuchen, wird die Korrelation zwischen E5, E10 und Diesel berechnet. Dazu wird der Korrelationskoeffizient nach Pearson verwendet und die Ergebnisse in einer Tabelle dargestellt.
+
+```{r}
+cor(datensatz[,c("e5_median", "e10_median", "diesel_median")], method = "pearson")
+```
+
+Die Kraftstoffe E5 und E10 Korrelieren mit einem Korrelationskoeffizienten von 0.9963 (sehr hoher Zusammenhang) wogegen Diesel eine Korrellation von ca. 0.52 (hoher Zusammenhang) mit den anderen Kraftstoffen aufweist.
+
+### Fazit zur allgemeinen Untersuchung
+
+Die hohe Korrelation zwischen E5 und E10 kommt nicht überraschend, da die beiden Kraftstoffarten auf dem gleichen Rohstoff basieren und daher ähnliche Preisentwicklungen aufweisen.
+Dies und der höhere Preis von E5 im Vergleich zu E10 kommt daher, dass E5 einen niedrigeren Bioethanolanteil hat (95 % Benzin 5 % Bioethanol) und daher teurer ist.
+*Quelle: <https://www.autoscout24.de/informieren/ratgeber/kfz-technik/e10-tanken/>*
+Diesel hingegen hat eine geringere Korrelation mit E5 und E10, da es sich zum einen um einen anderen Kraftstoff handelt und zum anderen die Preisgestaltung von Diesel von anderen Faktoren abhängt.
+So ist ein Grund für die niedrigeren Dieselpreise die geringere Besteuerung von Dieselkraftstoff im Vergleich zu Benzin. Die Energiesteuer pro Liter Diesel beträgt 47,04 Cent, während sie für Benzin 65,45 Cent beträgt. Dies führt dazu, dass Dieselkraftstoff in der Regel günstiger ist als Benzin.
+*Quelle: <https://www.adac.de/verkehr/tanken-kraftstoff-antrieb/tipps-zum-tanken/7-fragen-zum-benzinpreis/>*
+
+
+# Untersuchung von Einflussfaktoren
+
+Es wurden bereits Unterschiede zwischen den Kraftstoffpreisen festgestellt. Nun werden mögliche Einflussfaktoren auf die Preise untersucht. Dazu werden Hypothesen formuliert und überprüft.
+
+## Hypothese 1 - Unterschiede im Preisverhalten zwischen Wochentagen
+
+Montags sind die Kraftstoffpreise in Berlin stabiler, während freitags größere Schwankungen auftreten, da viele Menschen am Wochenende tanken.
+
+### Untersuchung der Hypothese 1
+
+Die Hypothese wird nun überprüft, indem die Varianz der Kraftstoffpreise für jeden Wochentag berechnet und in einem Balkendiagramm dargestellt wird.
+
+```{r}
+# Daten vorbereiten
+#datensatz$day <- weekdays(as.Date(datensatz$date))
+#datensatz$day <- factor(datensatz$day, levels = c("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"))
+
+#preis_varianz <- aggregate(datensatz$e5, by = list(datensatz$day), FUN = var)
+#preis_varianz
+
+#barplot(preis_varianz$x, names.arg = preis_varianz$Group.1, xlab = "Wochentag", ylab = "Varianz", main = "Varianz der Kraftstoffpreise nach Wochentagen")
+```
+
+### Fazit zur Hypothese 1
+
+Die Varianz der Kraftstoffpreise ist an Freitagen tatsächlich höher als an anderen Wochentagen. Dies könnte darauf hindeuten, dass die Preise an Freitagen stärker schwanken als an anderen Tagen. Die Hypothese, dass die Kraftstoffpreise an Montagen stabiler sind, konnte jedoch nicht bestätigt werden.
+
+## Hypothese 2 - Einfluss von Feiertagen
+
+Die Kraftstoffpreise steigen an den Tagen vor Feiertagen stärker an als vor normalen Wochenenden.
+
+### Untersuchung der Hypothese 2
+
+<https://www.kalenderpedia.de/feiertage/feiertage-berlin-2023.html#google_vignette> Die Hypothese wird überprüft, indem die Preisentwicklung an Tagen vor Feiertagen und an normalen Wochenenden verglichen wird. Dazu werden die Daten mit einem Feiertagskalender abgeglichen und die Preisentwicklung an Tagen vor Feiertagen und an normalen Wochenenden untersucht.
+
+```{r}
+# Feiertagskalender wird importiert
+feiertage <- read.csv2("feiertage2023berlin.csv", header = TRUE, sep = ";", dec = ".")
+feiertage
+
+```
+
+### Fazit zur Hypothese 2
+
+## Hypothese 3 - Mondphase-Effekt
+
+<https://www.somacon.com/p570.php> Während Vollmondphasen sind die Kraftstoffpreise in Berlin signifikant höher.
+
+```{r}
+# Mondphasen werden importiert
+mondphasen <- read.csv2("moonphases2023berlin.csv", header = TRUE, sep = ",", dec = ".")
+# Überprüfung der steigenden Preise an Vollmondtagen
+mondphasen
+
+```
+
+### Untersuchung der Hypothese 3
+
+### Fazit zur Hypothese 3
+
+## Hypothese 4 - Schulferien-Effekt
+
+Während der Schulferien sind die Kraftstoffpreise in Berlin signifikant höher.
+
+### Untersuchung der Hypothose 4
+
+### Fazit zur Hypothese 4
+
+# Zusammenfassung und Ausblick
+
+| X | id | date | time | name | brand | street | house_number | post_code | opening_time | closing_time | e5_median | e10_median | diesel_median | day |
+|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+| 1 | 005056a9-779e-1ee9-81a5-0ae97d8d86da | 2023-01-01 | 06:00:00 | ORLEN Tankstelle | ORLEN | Mariendorfer Damm | 306.0 | 12107 | 06:00:00 | 22:00:00 | 1849 | 1789 | 1949 | Sonntag |
+| 2 | 005056a9-779e-1ee9-81a5-0ae97d8d86da | 2023-01-01 | 07:00:00 | ORLEN Tankstelle | ORLEN | Mariendorfer Damm | 306.0 | 12107 | 06:00:00 | 22:00:00 | 1839 | 1779 | 1929 | Sonntag |
