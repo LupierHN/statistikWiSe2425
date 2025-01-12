@@ -15,6 +15,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Die vorliegende Analyse untersucht Kraftstoffpreise in Berlin mithilfe von statistischen Methoden. Ziel ist es, Trends, Unterschiede zwischen Tankstellen sowie Einflussfaktoren auf die Preise zu identifizieren. Hierzu werden die Kraftstoffpreise für E5, E10 und Diesel analysiert und mit verschiedenen Merkmalen wie Tankstellenmarken, Wochentagen und Feiertagen in Beziehung gesetzt. Die Analyse basiert auf einem Datensatz, der die Kraftstoffpreise für verschiedene Tankstellen in Berlin über einen Zeitraum von fast einem Jahr enthält.
 
+Weitere Informationen und der vollständige Ordner ist auf [GitHub](https://github.com/LupierHN/statistikWiSe2425) verfügbar.
+
 # Import und erste Überprüfung der Daten
 
 Der Datensatz wird in R importiert und auf fehlende Werte überprüft. Erste Maßnahmen werden ergriffen, um fehlende Werte und Inkonsistenz zu identifizieren und zu korrigieren.
@@ -81,12 +83,6 @@ Zu Beginn wird ein Überblick über den Inhalt des Datensatzes verschafft und di
 print(summary(datensatz))
 ```
 
-Folgende Inhalte sind im Datensatz enthalten und werden tabellarisch dargestellt: 
-
-| X            | id                | date                  | time                    | name                | brand                | street                | house_number              | post_code                   | opening_time                | closing_time               | e5_median                     | e10_median                     | diesel_median                     |
-|--------------|-------------------|-----------------------|-------------------------|---------------------|----------------------|-----------------------|---------------------------|-----------------------------|-----------------------------|----------------------------|-------------------------------|--------------------------------|-----------------------------------|
-| ID der Zeile | ID der Tankstelle | Datum der Beobachtung | Uhrzeit der Beobachtung | Name der Tankstelle | Marke der Tankstelle | Straße der Tankstelle | Hausnummer der Tankstelle | Postleitzahl der Tankstelle | Öffnungszeit der Tankstelle | Schließzeit der Tankstelle | Medianpreis für Kraftstoff E5 | Medianpreis für Kraftstoff E10 | Medianpreis für Kraftstoff Diesel |
-
 Bei der 5-Punkte-Zusammenfassung der Diesel-Preise fällt auf das Ausreißer existieren. Dies wird durch den überdurchschnittlichen Abstand des kleinsten Wertes zum 1. Quartil besonders deutlich. Um die Ausreißer besser zu erkennen, wird ein Boxplot der Diesel-Preise verwendet.
 
 ```{r, out.width = "100%"}
@@ -114,7 +110,11 @@ Um die Struktur sowie den Inhalt der Daten nachzuvollziehen werden die ersten 5 
 head(datensatz, 5)
 ```
 
-Aus den ersten 5 Zeilen des Datensatzes können wir erkennen, dass die Daten die folgenden Spalten enthalten: ID, Datum, Uhrzeit, Name der Tankstelle, Marke der Tankstelle, Straße der Tankstelle, Hausnummer der Tankstelle, Postleitzahl der Tankstelle, Öffnungszeit der Tankstelle, Schließzeit der Tankstelle, Medianpreis für Kraftstoff E5, Medianpreis für Kraftstoff E10 und Medianpreis für Kraftstoff Diesel. Dabei gibt die ID der Tankstelle an, date das Datum der Beobachtung und time die Uhrzeit der Beobachtung, wobei diese jeweils eine Stunde auseinanderliegen. Die Spalten e5_median, e10_median und diesel_median enthalten die Medianpreise für die Kraftstoffarten E5, E10 und Diesel dieser jeweiligen Stunde. Name, brand, street, house_number und post_code enthalten Informationen zur Tankstelle. Opening_time und closing_time die Öffnungs- und Schließzeiten der Tankstelle.
+Folgende Inhalte sind im Datensatz enthalten und werden tabellarisch dargestellt:
+
+| X            | id                | date                  | time                    | name                | brand                | street                | house_number              | post_code                   | opening_time                | closing_time               | e5_median                     | e10_median                     | diesel_median                     |
+|--------------|-------------------|-----------------------|-------------------------|---------------------|----------------------|-----------------------|---------------------------|-----------------------------|-----------------------------|----------------------------|-------------------------------|--------------------------------|-----------------------------------|
+| ID der Zeile | ID der Tankstelle | Datum der Beobachtung | Uhrzeit der Beobachtung | Name der Tankstelle | Marke der Tankstelle | Straße der Tankstelle | Hausnummer der Tankstelle | Postleitzahl der Tankstelle | Öffnungszeit der Tankstelle | Schließzeit der Tankstelle | Medianpreis für Kraftstoff E5 | Medianpreis für Kraftstoff E10 | Medianpreis für Kraftstoff Diesel |
 
 # Allgemeine Untersuchung
 
@@ -131,13 +131,7 @@ uebersicht <- data.frame(
 print(uebersicht)
 ```
 
-Die Vielfalt der Daten zeigt, dass diese für eine statistische Analyse gut geeignet sind. Mit 37 Tankstellen, 9 Marken, 35 Straßen, 34 Postleitzahlen, 5 verschiedenen Öffnungszeiten, 7 Schließzeiten und 259 einzigartigen Datumswerten ist der Umfang der Daten ausreichend groß, um repräsentative Ergebnisse zu erzielen.
-
-Im nächsten Schritt werden potenzielle Analysemethoden untersucht. Dabei werden Merkmalskombinationen betrachtet und geeignete Untersuchungsansätze formuliert.
-
-Das Verhältnis von 9 Marken zu 37 Tankstellen ermöglicht es, die Marken miteinander zu vergleichen. Die Datenbasis ist für diesen Vergleich ausreichend, da genügend Datenpunkte vorhanden sind, um statistisch signifikante Ergebnisse zu erzielen. Im Gegensatz dazu ist das Verhältnis von 37 Tankstellen zu 34 Postleitzahlen weniger für eine Analyse geeignet, da hier die Datenbasis zu gering ist, um repräsentative und statistisch signifikante Ergebnisse zu erhalten. Stattdessen könnten Tankstellen und ihre zugehörigen Postleitzahlen auf Bezirksebene analysiert werden, um aussagekräftigere Ergebnisse zu erzielen.
-
-Die 259 einzigartigen Datumswerte zeigen, dass die Daten über einen längeren Zeitraum hinweg erhoben wurden, wodurch sich zeitliche Trends und Entwicklungen zuverlässig untersuchen lassen.
+Die Daten umfassen 37 Tankstellen, 9 Marken, 35 Straßen, 34 Postleitzahlen, 5 Öffnungszeiten, 7 Schließzeiten und 259 einzigartige Datumswerte, was sie gut für statistische Analysen geeignet macht. Der Vergleich der Marken ist aufgrund der ausreichend großen Datenbasis aussagekräftig. Im Gegensatz dazu ist der Vergleich von Tankstellen und Postleitzahlen aufgrund der geringen Datenbasis weniger geeignet; eine Gruppierung auf Bezirksebene könnte hier sinnvoller sein. Die lange Erhebungsdauer der 259 Datumswerte erlaubt es, zeitliche Trends und Entwicklungen zuverlässig zu untersuchen.
 
 ## Häufigkeitsverteilung der Preise
 
@@ -375,26 +369,11 @@ Die Boxplots zeigen die durchschnittlichen Preise für E5, E10 und Diesel an Vol
 Beim Boxplot der durchschnittlichen Preise für E5, E10 und Diesel an nicht Vollmondtagen sind deutlich mehr Ausreißer vorhanden als an Vollmondtagen. Dies wird daran liegen, dass wir deutlich mehr Datenpunkte für nicht Vollmondtage haben.
 Im Vergleich: für Vollmondtagen haben wir `r sum_Full` Datenpunkte und für nicht Vollmondtagen haben wir `r sum_nFull` Datenpunkte.
 
-```{r, out.width = "100%"}
-
-# Im Zeitverlauf werden die Mondphasen hervorgehoben
-plot(durchschnittspreise$Group.1, durchschnittspreise$e5_median, type = "l", col = "blue", xlab = "Datum", ylab = "Preis in 1/10 Cent", main = "Preisverlauf von E5, E10 & Diesel", ylim = c(1500, 2000))
-lines(durchschnittspreise$Group.1, durchschnittspreise$e10_median, col = "red")
-lines(durchschnittspreise$Group.1, durchschnittspreise$diesel_median, col = "green")
-for (i in seq_len(nrow(mondphasen))) {
-  abline(v = mondphasen$date[i], col = "grey", lty = 2)
-}
-legend("bottomright", legend = c("E5", "E10", "Diesel"), col = c("blue", "red", "green"), lty = 1, cex = 0.8)
-legend("topright", legend = "Mondphasen", col = "grey", lty = 2, cex = 0.8)
-
-
-
-```
-
-Für eine zweite überprüfung der Hypothese wird der Preisverlauf von E5, E10 und Diesel über den Zeitraum von 2023 dargestellt. Die Mondphasen sind im Diagramm als graue Linien hervorgehoben. Es ist zu erkennen, dass die Preise für E5, E10 und Diesel unabhängig von den Mondphasen schwanken. Dies bestätigt die vorherige Analyse, dass die Kraftstoffpreise in Berlin nicht von den Mondphasen beeinflusst werden.
-
 ### Fazit zur Hypothese 2
 
 Es konnte gezeigt werden, dass die Kraftstoffpreise in Berlin nicht von den Mondphasen beeinflusst werden. Die durchschnittlichen Preise für E5, E10 und Diesel an Vollmondtagen sind nicht höher als an anderen Tagen. Dies deutet darauf hin, dass die Mondphasen keinen Einfluss auf die Preisgestaltung von Kraftstoffen haben. Verbraucher müssen sich daher keine Sorgen machen, dass sie an Vollmondtagen höhere Preise zahlen müssen als an anderen Tagen.
 
 # Zusammenfassung und Ausblick
+Die Analyse der Kraftstoffpreise in Berlin konzentrierte sich auf die Muster und Schwankungen der Preise für E5, E10 und Diesel. Nach einer gründlichen Datenbereinigung, einschließlich der Korrektur fehlender Hausnummern, wurden keine weiteren Inkonsistenzen festgestellt.
+
+Die deskriptive Analyse zeigte Unterschiede in den Preisverteilungen der Kraftstoffe. Zeitreihenanalysen verdeutlichten Schwankungen der Preise über den betrachteten Zeitraum. Diese Ergebnisse bieten wertvolle Einblicke in die Dynamik der Berliner Kraftstoffpreise im Jahr 2023.
