@@ -358,15 +358,43 @@ Eine weitere Hypothese besagt, dass die Kraftstoffpreise in Berlin von den Mondp
 
 Um die Hypothese zu überprüfen, werden die Kraftstoffpreise an Vollmondtagen mit den Preisen an anderen Tagen verglichen. Dazu werden die Daten nach Mondphasen gruppiert und die durchschnittlichen Preise für E5, E10 und Diesel an Vollmondtagen berechnet. Anschließend werden die Ergebnisse in einem Boxplot dargestellt.
 
-```{r}
+```{r, out.width = "100%"}
 # Mondphasen werden importiert
-mondphasen <- read.csv2("moonphases2023Berlin.csv", header = TRUE, sep = ",", dec = ".")
-head(mondphasen)
+mondphasen <- read.csv("moonphases2023Berlin.csv", header = TRUE, sep = ",", dec = ".", row.names = NULL)
 mondphasen$date <- as.Date(mondphasen$date, format = "%m/%d/%Y")
-mondphasen
+# Daten werden nach Mondphasen gruppiert
+datensatz$mondphase <- ifelse(datensatz$date %in% mondphasen$date, "Vollmond", "kein Vollmond")
+# Anzahl datenpunkte für Vollmond und kein Vollmond
+sum_Full <- sum(datensatz$mondphase == "Vollmond")
+sum_nFull <- sum(datensatz$mondphase == "kein Vollmond")
+# Boxplot der durchschnittlichen Preise für E5, E10 und Diesel an Vollmondtagen
+boxplot(cbind(datensatz$e5_median, datensatz$e10_median, datensatz$diesel_median) ~ datensatz$mondphase, data = datensatz, main = "Preisverteilung der Kraftstoffpreise an Vollmondtagen", ylab = "Preis in 1/10 Cent", col = c("lightblue", "lightgreen"), names = c("kein Vollmond", "Vollmond"), xlab = "Mondphase")
+```
+
+Die Boxplots zeigen die durchschnittlichen Preise für E5, E10 und Diesel an Vollmondtagen im Vergleich zu den Preisen an anderen Tagen. Der blaue Boxplot repräsentiert die Preise an Tagen ohne Vollmond, während der grüne Boxplot die Preise an Vollmondtagen darstellt. Es ist zu erkennen, dass die Preise an Vollmondtagen nicht höher sind als an anderen Tagen. Dies deutet darauf hin, dass die Kraftstoffpreise in Berlin nicht von den Mondphasen beeinflusst werden.
+Beim Boxplot der durchschnittlichen Preise für E5, E10 und Diesel an nicht Vollmondtagen sind deutlich mehr Ausreißer vorhanden als an Vollmondtagen. Dies wird daran liegen, dass wir deutlich mehr Datenpunkte für nicht Vollmondtage haben.
+Im Vergleich: für Vollmondtagen haben wir `r sum_Full` Datenpunkte und für nicht Vollmondtagen haben wir `r sum_nFull` Datenpunkte.
+
+```{r, out.width = "100%"}
+
+# Im Zeitverlauf werden die Mondphasen hervorgehoben
+plot(durchschnittspreise$Group.1, durchschnittspreise$e5_median, type = "l", col = "blue", xlab = "Datum", ylab = "Preis in 1/10 Cent", main = "Preisverlauf von E5, E10 & Diesel", ylim = c(1500, 2000))
+lines(durchschnittspreise$Group.1, durchschnittspreise$e10_median, col = "red")
+lines(durchschnittspreise$Group.1, durchschnittspreise$diesel_median, col = "green")
+for (i in seq_len(nrow(mondphasen))) {
+  abline(v = mondphasen$date[i], col = "grey", lty = 2)
+}
+legend("bottomright", legend = c("E5", "E10", "Diesel"), col = c("blue", "red", "green"), lty = 1, cex = 0.8)
+legend("topright", legend = "Mondphasen", col = "grey", lty = 2, cex = 0.8)
+
+
 
 ```
 
+Für eine zweite überprüfung der Hypothese wird der Preisverlauf von E5, E10 und Diesel über den Zeitraum von 2023 dargestellt. Die Mondphasen sind im Diagramm als graue Linien hervorgehoben. Es ist zu erkennen, dass die Preise für E5, E10 und Diesel unabhängig von den Mondphasen schwanken. Dies bestätigt die vorherige Analyse, dass die Kraftstoffpreise in Berlin nicht von den Mondphasen beeinflusst werden.
+
 ### Fazit zur Hypothese 2
+
+Es konnte gezeigt werden, dass die Kraftstoffpreise in Berlin nicht von den Mondphasen beeinflusst werden. Die durchschnittlichen Preise für E5, E10 und Diesel an Vollmondtagen sind nicht höher als an anderen Tagen. Dies deutet darauf hin, dass die Mondphasen keinen Einfluss auf die Preisgestaltung von Kraftstoffen haben. Verbraucher müssen sich daher keine Sorgen machen, dass sie an Vollmondtagen höhere Preise zahlen müssen als an anderen Tagen.
 
 # Zusammenfassung und Ausblick

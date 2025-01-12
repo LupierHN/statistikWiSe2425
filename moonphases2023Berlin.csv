@@ -1,4 +1,4 @@
-date,time,phase,phaseid,datetime,timestamp,friendlydate,timezone
+date,time,phase,phaseid,datetime,timestamp,friendlydate,year,timezone
 01/07/2023,12:08 AM,Full Moon,3,2023-01-07 00:08:00,1673046480,January 7, 2023,Europe/Berlin
 01/15/2023,03:10 AM,Last Quarter,4,2023-01-15 03:10:00,1673748600,January 15, 2023,Europe/Berlin
 01/21/2023,09:53 PM,New Moon,1,2023-01-21 21:53:00,1674334380,January 21, 2023,Europe/Berlin
