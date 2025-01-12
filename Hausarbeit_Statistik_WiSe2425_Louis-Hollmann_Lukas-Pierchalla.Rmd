@@ -32,7 +32,7 @@ print(sum(is.na(datensatz)))
 
 ```
 
-Die Gesamtanzahl der fehlenden Werte wurde ermittelt. Hierdurch fällt auf das fehlende Werte existieren welche behandelt werden müssen, ebenfalls ist die Anzahl dieser nun bekannt. Um weitere Maßnahmen zu ergreifen wird überprüft welche Spalten betroffen sind und wie viele fehlende Werte es in den einzelnen Spalten gibt.
+Die Gesamtanzahl der fehlenden Werte wurde ermittelt. Hierdurch fällt auf, dass fehlende Werte existieren welche behandelt werden müssen, ebenfalls ist die Anzahl dieser nun bekannt. Um weitere Maßnahmen zu ergreifen wird überprüft, welche Spalten betroffen sind und wie viele fehlende Werte es in den einzelnen Spalten gibt.
 
 ```{r}
 # Spalten mit Anzahl der fehlender Werte anzeigen
@@ -82,8 +82,9 @@ print(summary(datensatz))
 ```
 
 Folgende Inhalte sind im Datensatz enthalten und werden tabellarisch dargestellt: 
-| X | id | date | time | name | brand | street | house_number | post_code | opening_time | closing_time | e5_median | e10_median | diesel_median | 
-|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----| 
+
+| X            | id                | date                  | time                    | name                | brand                | street                | house_number              | post_code                   | opening_time                | closing_time               | e5_median                     | e10_median                     | diesel_median                     |
+|--------------|-------------------|-----------------------|-------------------------|---------------------|----------------------|-----------------------|---------------------------|-----------------------------|-----------------------------|----------------------------|-------------------------------|--------------------------------|-----------------------------------|
 | ID der Zeile | ID der Tankstelle | Datum der Beobachtung | Uhrzeit der Beobachtung | Name der Tankstelle | Marke der Tankstelle | Straße der Tankstelle | Hausnummer der Tankstelle | Postleitzahl der Tankstelle | Öffnungszeit der Tankstelle | Schließzeit der Tankstelle | Medianpreis für Kraftstoff E5 | Medianpreis für Kraftstoff E10 | Medianpreis für Kraftstoff Diesel |
 
 Bei der 5-Punkte-Zusammenfassung der Diesel-Preise fällt auf das Ausreißer existieren. Dies wird durch den überdurchschnittlichen Abstand des kleinsten Wertes zum 1. Quartil besonders deutlich. Um die Ausreißer besser zu erkennen, wird ein Boxplot der Diesel-Preise verwendet.
@@ -235,8 +236,8 @@ Als zusätzliche Information werden die Schulferien in Berlin für das Jahr 2023
 datensatz$date <- as.Date(datensatz$date)
 #Schulferien in Berlin importieren
 schulferien <- read.csv2("SchulferienBerlin2023.csv", header = TRUE, sep = ";", dec = ".")
-schulferien$StartDate <- as.Date(schulferien$StartDate)
-schulferien$EndDate <- as.Date(schulferien$EndDate)
+schulferien$StartDate <- as.Date(schulferien$StartDate, format = "%d/%m/%y")
+schulferien$EndDate <- as.Date(schulferien$EndDate, format = "%d/%m/%y")
 # Durchschnittliche Preise für jeden Tag berechnen
 durchschnittspreise <- aggregate(datensatz[,c("e5_median", "e10_median", "diesel_median")], by = list(datensatz$date), FUN = mean)
 plot(durchschnittspreise$Group.1, durchschnittspreise$e5_median, type = "l", col = "blue", xlab = "Datum", ylab = "Preis in 1/10 Cent", main = "Preisverlauf von E5, E10 & Diesel ueber die Zeit", ylim = c(1500, 2000))
@@ -244,18 +245,17 @@ lines(durchschnittspreise$Group.1, durchschnittspreise$e10_median, col = "red")
 lines(durchschnittspreise$Group.1, durchschnittspreise$diesel_median, col = "green")
 abline(h = c(1843.16, 1784.32, 1726.11), col = c("blue", "red", "green"), lty = 2)
 for (i in seq_len(nrow(schulferien))) {
-  rect(schulferien$StartDate[i], 1500, schulferien$EndDate[i], 2000, col = "lightgrey", border = NA, density = 5)
+  rect(schulferien$StartDate[i], 1500, schulferien$EndDate[i], 2000, col = "lightgrey", border = NA, density = 10)
 }
-legend("bottomleft", legend = c("E5", "E10", "Diesel"), col = c("blue", "red", "green"), lty = 1, bty = "n", cex = 0.8)
-legend("topright", legend = "Schulferien", fill = "lightgrey", density = 25, bty = "n", cex = 0.8)
-legend("bottomright", legend = c("E5 - mean", "E10 - mean", "Diesel - mean"), col = c("blue", "red", "green"), lty = 2, bty = "n", cex = 0.8)
+legend("bottomleft", legend = c("E5", "E10", "Diesel"), col = c("blue", "red", "green"), lty = 1, bty = "n")
+legend("topright", legend = "Schulferien", fill = "lightgrey", density = 25, bty = "n")
+legend("bottomright", legend = c("E5 - mean", "E10 - mean", "Diesel - mean"), col = c("blue", "red", "green"), lty = 2, bty = "n")
 
 ```
 
 Aus dem Liniendiagramm ist ersichtlich, dass die Preise für E5 und E10 über den Zeitraum zwar schwankungen unterliegen, aber die Preise für Diesel viel stärkere Schwankungen zeigen. Die durchschnittlichen Preise für E5 und E10 zeigen eine ähnliche Entwicklung, dies deutet darauf hin, dass die Preise für E5 und E10 miteinander korrelieren. Die Preise für Diesel hingegen weisen eine stärkere Varianz auf.
 Die Schulferien in Berlin sind im Diagramm als graue hervorgehoben dargestellt. Es ist zu erkennen, dass die Preise während der Schulferien in 2 von 3 Fällen auffällig ansteigen. Dies könnte darauf hindeuten, dass die Nachfrage nach Kraftstoff während der Ferienzeit steigt und die Preise entsprechend angepasst werden.
-Die vorherige Untersuchung der Kraftstoffpreise zeigte, dass die E5 preise tendenziell höher sind als die E10 Preise. Dies wird durch das Liniendiagramm bestätigt, da die durchschnittlichen Preise für E5 über den gesamten Zeitraum über denen von E10 liegen. Diesel hingegen weist die niedrigsten Preise auf, was ebenfalls mit den vorherigen Ergebnissen übereinstimmt. Eine Ausnahme bildet der Zeitraum vor Februar, in dem die Diesel Preise kurzzeitig über denen von E5 liegen. Ab Mai sinken die Diesel Preise jedoch wieder und liegen weit unter denen von E5 und E10. Dies ist auf die sehr niedrigen Rohölnotierungen zurückzuführen, die zu einem Preisverfall bei Diesel geführt haben.
-*Quelle: <https://presse.adac.de/meldungen/adac-ev/verkehr/diesel-im-mai-auf-jahrestiefststand.html>*
+Die vorherige Untersuchung der Kraftstoffpreise zeigte, dass die E5 preise tendenziell höher sind als die E10 Preise. Dies wird durch das Liniendiagramm bestätigt, da die durchschnittlichen Preise für E5 über den gesamten Zeitraum über denen von E10 liegen. Diesel hingegen weist die niedrigsten Preise auf, was ebenfalls mit den vorherigen Ergebnissen übereinstimmt. Eine Ausnahme bildet der Zeitraum vor Februar, in dem die Diesel Preise kurzzeitig über denen von E5 liegen. Ab Mai sinken die Diesel Preise jedoch wieder und liegen weit unter denen von E5 und E10.
 
 ### Korrelation zwischen den Kraftstoffpreisen
 
@@ -275,34 +275,64 @@ Dies und der höhere Preis von E5 im Vergleich zu E10 kommt daher, dass E5 einen
 Diesel hingegen hat eine geringere Korrelation mit E5 und E10, da es sich zum einen um einen anderen Kraftstoff handelt und zum anderen die Preisgestaltung von Diesel von anderen Faktoren abhängt.
 So ist ein Grund für die niedrigeren Dieselpreise die geringere Besteuerung von Dieselkraftstoff im Vergleich zu Benzin. Die Energiesteuer pro Liter Diesel beträgt 47,04 Cent, während sie für Benzin 65,45 Cent beträgt. Dies führt dazu, dass Dieselkraftstoff in der Regel günstiger ist als Benzin.
 *Quelle: <https://www.adac.de/verkehr/tanken-kraftstoff-antrieb/tipps-zum-tanken/7-fragen-zum-benzinpreis/>*
+Die geringen Dieselpreise ab Mai sind auf die sehr niedrigen Rohölnotierungen zurückzuführen, die zu einem Preisverfall bei Diesel geführt haben.
+*Quelle: <https://presse.adac.de/meldungen/adac-ev/verkehr/diesel-im-mai-auf-jahrestiefststand.html>*
 
 
 # Untersuchung von Einflussfaktoren
 
-Es wurden bereits Unterschiede zwischen den Kraftstoffpreisen festgestellt. Nun werden mögliche Einflussfaktoren auf die Preise untersucht. Dazu werden Hypothesen formuliert und überprüft.
+Es wurden bereits Unterschiede zwischen den Kraftstoffpreisen festgestellt. Nun sollen mögliche Einflussfaktoren auf die Preisentwicklung untersucht werden. Dazu werden vier Hypothesen aufgestellt und überprüft.
 
 ## Hypothese 1 - Unterschiede im Preisverhalten zwischen Wochentagen
 
-Montags sind die Kraftstoffpreise in Berlin stabiler, während freitags größere Schwankungen auftreten, da viele Menschen am Wochenende tanken.
+Es wird vermutet, dass die Kraftstoffpreise an Montagen stabiler sind als an Freitagen. Die Vermutung basiert auf der Annahme, dass die Preise zu Beginn der Woche weniger stark schwanken als am Ende der Woche, da die Nachfrage an Montagen tendenziell geringer ist.
+Um die Hypothese zu überprüfen, wird die Varianz der Kraftstoffpreise an verschiedenen Wochentagen berechnet und miteinander verglichen.
 
 ### Untersuchung der Hypothese 1
 
-Die Hypothese wird nun überprüft, indem die Varianz der Kraftstoffpreise für jeden Wochentag berechnet und in einem Balkendiagramm dargestellt wird.
+Um die Varianz der Kraftstoffpreise an verschiedenen Wochentagen zu berechnen, werden die Daten nach Wochentagen gruppiert und die Varianz der Preise für E5, E10 und Diesel berechnet. Anschließend werden die Ergebnisse in einem Barplot dargestellt.
 
 ```{r}
-# Daten vorbereiten
-#datensatz$day <- weekdays(as.Date(datensatz$date))
-#datensatz$day <- factor(datensatz$day, levels = c("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"))
-
-#preis_varianz <- aggregate(datensatz$e5, by = list(datensatz$day), FUN = var)
-#preis_varianz
-
-#barplot(preis_varianz$x, names.arg = preis_varianz$Group.1, xlab = "Wochentag", ylab = "Varianz", main = "Varianz der Kraftstoffpreise nach Wochentagen")
+# Daten nach Wochentagen gruppieren
+datensatz$day <- weekdays(datensatz$date)
+# Varianz der Kraftstoffpreise an verschiedenen Wochentagen berechnen
+varianz <- aggregate(datensatz[,c("e5_median", "e10_median", "diesel_median")], by = list(datensatz$day), FUN = var)
+varianz_e5 <- varianz$e5_median
+varianz_e10 <- varianz$e10_median
+varianz_diesel <- varianz$diesel_median
+names(varianz_e5) <- varianz$Group.1
+names(varianz_e10) <- varianz$Group.1
+names(varianz_diesel) <- varianz$Group.1
+# Sortierung der Wochentage (Montag bis Sonntag)
+varianz_e5 <- varianz_e5[c("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")]
+varianz_e10 <- varianz_e10[c("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")]
+varianz_diesel <- varianz_diesel[c("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")]
+# Wochentage Abkürzen
+names(varianz_e5) <- c("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So")
+names(varianz_e10) <- c("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So")
+names(varianz_diesel) <- c("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So")
+# Dreifacher Barplot der Varianz der Kraftstoffpreise an verschiedenen Wochentagen nach Kraftstoffart
+par(mfrow = c(1, 3))
+barplot(varianz_e5, main = "Varianz der Kraftstoffpreise \n an verschiedenen Wochentagen (E5)", ylab = "Varianz", col = ifelse(names(varianz_e5) == "Fr", "orange", "lightblue"), ylim = c(0, 11000))
+abline(h = mean(varianz_e5), col = "red", lwd = 2)
+legend("topright", legend = c("Durchschnittliche Varianz"), col = "red", lty = 1, bty = "n", cex = 1.5)
+barplot(varianz_e10, main = "(E10)", ylab = "Varianz", col = ifelse(names(varianz_e10) == "Fr", "orange", "lightblue"), ylim = c(0, 11000))
+abline(h = mean(varianz_e10), col = "red", lwd = 2)
+legend("topright", legend = c("Durchschnittliche Varianz"), col = "red", lty = 1, bty = "n", cex = 1.5)
+barplot(varianz_diesel, main = "(Diesel)", ylab = "Varianz", col = ifelse(names(varianz_diesel) == "Fr", "orange", "lightblue"), ylim = c(0, 11000))
+abline(h = mean(varianz_diesel), col = "red", lwd = 2)
+legend("topright", legend = c("Durchschnittliche Varianz"), col = "red", lty = 1, bty = "n", cex = 1.5)
 ```
+
+Die drei Barplots visualisieren die Varianz der Kraftstoffpreise für E5, E10 und Diesel an verschiedenen Wochentagen. Die orangefarbenen Balken markieren die Werte für Freitage, während die blauen Balken die übrigen Wochentage repräsentieren. Die rote Linie stellt die durchschnittliche Varianz über alle Wochentage hinweg dar und bietet eine klare Referenz für den Vergleich der Freitage mit dem Durchschnitt sowie mit anderen Wochentagen.
+Die durchschnittliche Varianz beträgt für E5 etwa `r round(mean(varianz_e5))`, für E10 etwa `r round(mean(varianz_e10))` und für Diesel etwa `r round(mean(varianz_diesel))`.
+
+Die Analyse der Barplots zeigt, dass die Varianz der Kraftstoffpreise an Freitagen häufig über dem Durchschnitt liegt. Dies deutet darauf hin, dass die Preise an Freitagen stärkeren Schwankungen unterliegen als an den meisten anderen Tagen. Besonders auffällig ist, dass die Varianz der Preise für E5 und E10 an Sonntagen die höchsten Werte erreicht. Dies könnte auf spezifische Marktbedingungen oder Nachfrageveränderungen an Sonntagen hinweisen. Im Gegensatz dazu sind die Preisvariationen unter der Woche für E5 und E10 relativ stabil.
+
+Die Varianz der Dieselpreise ist insgesamt an allen Wochentagen höher als die von E5 und E10. Dies bestätigt die Erkenntnis, dass Dieselpreise stärkeren Schwankungen ausgesetzt sind. Interessanterweise zeigt Diesel eine andere Dynamik: Die höchste Varianz tritt an Dienstagen auf, während Montags die geringste Varianz beobachtet wird. Im Gegensatz zu E5 und E10 lässt sich bei Diesel keine eindeutige Tendenz in den Schwankungen über die Wochentage hinweg erkennen.
 
 ### Fazit zur Hypothese 1
 
-Die Varianz der Kraftstoffpreise ist an Freitagen tatsächlich höher als an anderen Wochentagen. Dies könnte darauf hindeuten, dass die Preise an Freitagen stärker schwanken als an anderen Tagen. Die Hypothese, dass die Kraftstoffpreise an Montagen stabiler sind, konnte jedoch nicht bestätigt werden.
 
 ## Hypothese 2 - Einfluss von Feiertagen
 
@@ -347,7 +377,7 @@ Während der Schulferien sind die Kraftstoffpreise in Berlin signifikant höher.
 
 # Zusammenfassung und Ausblick
 
-| X | id | date | time | name | brand | street | house_number | post_code | opening_time | closing_time | e5_median | e10_median | diesel_median | day |
-|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
-| 1 | 005056a9-779e-1ee9-81a5-0ae97d8d86da | 2023-01-01 | 06:00:00 | ORLEN Tankstelle | ORLEN | Mariendorfer Damm | 306.0 | 12107 | 06:00:00 | 22:00:00 | 1849 | 1789 | 1949 | Sonntag |
-| 2 | 005056a9-779e-1ee9-81a5-0ae97d8d86da | 2023-01-01 | 07:00:00 | ORLEN Tankstelle | ORLEN | Mariendorfer Damm | 306.0 | 12107 | 06:00:00 | 22:00:00 | 1839 | 1779 | 1929 | Sonntag |
+| X | id                                   | date       | time     | name             | brand | street            | house_number | post_code | opening_time | closing_time | e5_median | e10_median | diesel_median | day     |
+|---|--------------------------------------|------------|----------|------------------|-------|-------------------|--------------|-----------|--------------|--------------|-----------|------------|---------------|---------|
+| 1 | 005056a9-779e-1ee9-81a5-0ae97d8d86da | 2023-01-01 | 06:00:00 | ORLEN Tankstelle | ORLEN | Mariendorfer Damm | 306.0        | 12107     | 06:00:00     | 22:00:00     | 1849      | 1789       | 1949          | Sonntag |
+| 2 | 005056a9-779e-1ee9-81a5-0ae97d8d86da | 2023-01-01 | 07:00:00 | ORLEN Tankstelle | ORLEN | Mariendorfer Damm | 306.0        | 12107     | 06:00:00     | 22:00:00     | 1839      | 1779       | 1929          | Sonntag |
