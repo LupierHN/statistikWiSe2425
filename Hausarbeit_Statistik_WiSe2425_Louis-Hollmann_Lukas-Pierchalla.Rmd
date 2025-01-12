@@ -1,6 +1,6 @@
 ---
 title: "Hausarbeit_Statistik_WiSe2425_Louis-Hollmann_Lukas-Pierchalla"
-author: "Louis Hollmann, Lukas Pierchalla (592515)"
+author: "Louis Hollmann (591467), Lukas Pierchalla (592515)"
 date: "`r Sys.Date()`"
 output:
   html_document: default
@@ -253,7 +253,7 @@ legend("bottomright", legend = c("E5 - mean", "E10 - mean", "Diesel - mean"), co
 
 Aus dem Liniendiagramm ist ersichtlich, dass die Preise für E5 und E10 über den Zeitraum zwar schwankungen unterliegen, aber die Preise für Diesel viel stärkere Schwankungen zeigen. Die durchschnittlichen Preise für E5 und E10 zeigen eine ähnliche Entwicklung, dies deutet darauf hin, dass die Preise für E5 und E10 miteinander korrelieren. Die Preise für Diesel hingegen weisen eine stärkere Varianz auf.
 Die Schulferien in Berlin sind im Diagramm als graue hervorgehoben dargestellt. Es ist zu erkennen, dass die Preise während der Schulferien in 2 von 3 Fällen auffällig ansteigen. Dies könnte darauf hindeuten, dass die Nachfrage nach Kraftstoff während der Ferienzeit steigt und die Preise entsprechend angepasst werden.
-Die vorherige Untersuchung der Kraftstoffpreise zeigte, dass die E5 preise tendenziell höher sind als die E10 Preise. Dies wird durch das Liniendiagramm bestätigt, da die durchschnittlichen Preise für E5 über den gesamten Zeitraum über denen von E10 liegen. Diesel hingegen weist die niedrigsten Preise auf, was ebenfalls mit den vorherigen Ergebnissen übereinstimmt. Eine Ausnahme bildet der Zeitraum vor Februar, in dem die Diesel Preise kurzzeitig über denen von E5 liegen. Ab Mai sinken die Diesel Preise jedoch wieder und liegen weit unter denen von E5 und E10.
+Die vorherige Untersuchung der Kraftstoffpreise zeigte, dass die E5 Preise tendenziell höher sind als die E10 Preise. Dies wird durch das Liniendiagramm bestätigt, da die durchschnittlichen Preise für E5 über den gesamten Zeitraum über denen von E10 liegen. Diesel hingegen weist die niedrigsten Preise auf, was ebenfalls mit den vorherigen Ergebnissen übereinstimmt. Eine Ausnahme bildet der Zeitraum vor Februar, in dem die Diesel Preise kurzzeitig über denen von E5 liegen. Ab Mai sinken die Diesel Preise jedoch wieder und liegen weit unter denen von E5 und E10.
 
 ### Korrelation zwischen den Kraftstoffpreisen
 
@@ -279,7 +279,7 @@ Die geringen Dieselpreise ab Mai sind auf die sehr niedrigen Rohölnotierungen z
 
 # Untersuchung von Einflussfaktoren
 
-Es wurden bereits Unterschiede zwischen den Kraftstoffpreisen festgestellt. Nun sollen mögliche Einflussfaktoren auf die Preisentwicklung untersucht werden. Dazu werden vier Hypothesen aufgestellt und überprüft.
+Es wurden bereits Unterschiede zwischen den Kraftstoffpreisen festgestellt. Nun sollen mögliche Einflussfaktoren auf die Preisentwicklung untersucht werden. Dazu werden Hypothesen aufgestellt und überprüft.
 
 ## Hypothese 1 - Unterschiede im Preisverhalten zwischen Wochentagen
 
@@ -331,51 +331,42 @@ Die Varianz der Dieselpreise ist insgesamt an allen Wochentagen höher als die v
 
 ### Fazit zur Hypothese 1
 
+#### Schwankungen der Kraftstoffpreise an Freitagen
 
-## Hypothese 2 - Einfluss von Feiertagen
+Die Analyse der Varianz der Kraftstoffpreise an verschiedenen Wochentagen zeigt, dass die Preise an Freitagen tendenziell stärkeren Schwankungen unterliegen als an den meisten anderen Tagen. Dies bestätigt die Hypothese, dass die Kraftstoffpreise an Freitagen instabiler sind als an anderen Wochentagen. Eine mögliche Erklärung dafür könnte sein, dass an Freitagen eine erhöhte Nachfrage besteht, da viele Verbraucher vor dem Wochenende tanken. Dies kann zu stärkeren Preisbewegungen führen, wenn Tankstellenbetreiber auf die gestiegene Nachfrage reagieren.
+Für Verbraucher bedeutet dies eine erhöhte Unsicherheit, da die Preise an Freitagen weniger vorhersehbar sind als an anderen Tagen. Dies kann dazu führen, dass Verbraucher an Freitagen höhere Preise zahlen als an anderen Wochentagen.
 
-Die Kraftstoffpreise steigen an den Tagen vor Feiertagen stärker an als vor normalen Wochenenden.
+#### Höchste Schwankungen an Sonntagen (E5 und E10)
+
+An Sonntagen zeigt sich deutlich die höchste Varianz der Kraftstoffpreise für E5 und E10. Dies könnte darauf hindeuten, dass an Sonntagen spezifische Marktbedingungen oder Nachfrageveränderungen vorliegen, die zu stärkeren Preisschwankungen führen. Eine mögliche Erklärung könnte sein, dass durch logistische Einschränkungen das Angebot limitierter ist und die Preise entsprechend angepasst werden. Außerdem könnte ebenfalls eine erhöhte Nachfrage an Sonntagen, aufgrund des anstehenden Arbeitsbeginns am Montag, zu Preisschwankungen führen.
+Für Verbraucher bedeutet dies, dass sie an Sonntagen mit besonders hohen Preisschwankungen rechnen müssen und gegebenenfalls von einem Tanken an diesem Tag absehen sollten.
+
+#### Stabilere Preislage unter der Woche (E5 und E10)
+
+Die Varianz der Kraftstoffpreise für E5 und E10 ist unter der Woche vergleichsweise stabil. Dies deutet darauf hin, dass die Preise an den meisten Wochentagen weniger stark schwanken als an Freitagen und am Wochenende. Ein möglicher Grund hierfür könnte sein, dass unter der Woche die Nachfrage stabiler ist, da Verbraucher oft nach Bedarf tanken (z. B. für den Arbeitsweg).
+Dies bietet Verbrauchern eine gewisse Planungssicherheit, da sie mit weniger starken Preisschwankungen rechnen müssen. Es könnte sich daher lohnen, das Tanken auf stabile Wochentage zu verlegen, um von konstanteren Preisen zu profitieren.
+
+#### Unterschiedliche Dynamik bei Diesel
+Im Gegensatz zu E5 und E10 zeigen die Dieselpreise keine klare Tendenz hinsichtlich stabilerer oder stärker schwankender Preise an bestimmten Wochentagen. Während die Varianz an Dienstagen am höchsten ist, ist sie an Montagen am niedrigsten, ohne dass ein erkennbares Muster über die Woche hinweg besteht.
+Dies deutet darauf hin, dass die Preisentwicklung von Diesel von anderen Faktoren abhängt als die von E5 und E10. Möglicherweise spielen externe Einflüsse wie Rohölpreise oder Steuerregelungen eine größere Rolle bei der Preisgestaltung von Diesel. Verbraucher sollten daher bei Dieselpreisen mit stärkeren Schwankungen rechnen und gegebenenfalls flexibel auf Preisänderungen reagieren.
+
+## Hypothese 2 - Mondphase-Effekt
+
+Eine weitere Hypothese besagt, dass die Kraftstoffpreise in Berlin von den Mondphasen beeinflusst werden. Es wird vermutet, dass die Preise an Vollmondtagen höher sind als an anderen Tagen. Die Vermutung basiert auf der Annahme, dass an Vollmond die Nachfrage nach Kraftstoff steigt und die Preise entsprechend angepasst werden.
 
 ### Untersuchung der Hypothese 2
 
-<https://www.kalenderpedia.de/feiertage/feiertage-berlin-2023.html#google_vignette> Die Hypothese wird überprüft, indem die Preisentwicklung an Tagen vor Feiertagen und an normalen Wochenenden verglichen wird. Dazu werden die Daten mit einem Feiertagskalender abgeglichen und die Preisentwicklung an Tagen vor Feiertagen und an normalen Wochenenden untersucht.
+Um die Hypothese zu überprüfen, werden die Kraftstoffpreise an Vollmondtagen mit den Preisen an anderen Tagen verglichen. Dazu werden die Daten nach Mondphasen gruppiert und die durchschnittlichen Preise für E5, E10 und Diesel an Vollmondtagen berechnet. Anschließend werden die Ergebnisse in einem Boxplot dargestellt.
 
 ```{r}
-# Feiertagskalender wird importiert
-# feiertage <- read.csv2("feiertage2023berlin.csv", header = TRUE, sep = ";", dec = ".")
-# feiertage
+# Mondphasen werden importiert
+mondphasen <- read.csv2("moonphases2023Berlin.csv", header = TRUE, sep = ",", dec = ".")
+head(mondphasen)
+mondphasen$date <- as.Date(mondphasen$date, format = "%m/%d/%Y")
+mondphasen
 
 ```
 
 ### Fazit zur Hypothese 2
 
-## Hypothese 3 - Mondphase-Effekt
-
-<https://www.somacon.com/p570.php> Während Vollmondphasen sind die Kraftstoffpreise in Berlin signifikant höher.
-
-```{r}
-# Mondphasen werden importiert
-mondphasen <- read.csv2("moonphases2023berlin.csv", header = TRUE, sep = ",", dec = ".")
-# Überprüfung der steigenden Preise an Vollmondtagen
-mondphasen
-
-```
-
-### Untersuchung der Hypothese 3
-
-### Fazit zur Hypothese 3
-
-## Hypothese 4 - Schulferien-Effekt
-
-Während der Schulferien sind die Kraftstoffpreise in Berlin signifikant höher.
-
-### Untersuchung der Hypothose 4
-
-### Fazit zur Hypothese 4
-
 # Zusammenfassung und Ausblick
-
-| X | id                                   | date       | time     | name             | brand | street            | house_number | post_code | opening_time | closing_time | e5_median | e10_median | diesel_median | day     |
-|---|--------------------------------------|------------|----------|------------------|-------|-------------------|--------------|-----------|--------------|--------------|-----------|------------|---------------|---------|
-| 1 | 005056a9-779e-1ee9-81a5-0ae97d8d86da | 2023-01-01 | 06:00:00 | ORLEN Tankstelle | ORLEN | Mariendorfer Damm | 306.0        | 12107     | 06:00:00     | 22:00:00     | 1849      | 1789       | 1949          | Sonntag |
-| 2 | 005056a9-779e-1ee9-81a5-0ae97d8d86da | 2023-01-01 | 07:00:00 | ORLEN Tankstelle | ORLEN | Mariendorfer Damm | 306.0        | 12107     | 06:00:00     | 22:00:00     | 1839      | 1779       | 1929          | Sonntag |
