@@ -1,6 +1,6 @@
 ---
 title: "Hausarbeit_Statistik_WiSe2425_Louis-Hollmann_Lukas-Pierchalla"
-author: "Louis Hollmann, Lukas Pierchalla"
+author: "Louis Hollmann, Lukas Pierchalla (592515)"
 date: "`r Sys.Date()`"
 output:
   html_document: default
@@ -77,7 +77,7 @@ Da die fehlenden Werte erfolgreich korrigiert wurden, sind keine fehlerhaften We
 
 Zu Beginn wird ein Überblick über den Inhalt des Datensatzes verschafft und die 5-Punkte-Zusammenfassung der numerischen Variablen angezeigt und überprüft.
 
-```{r}
+```{r, out.width = "100%"}
 print(summary(datensatz))
 ```
 
@@ -89,14 +89,14 @@ Folgende Inhalte sind im Datensatz enthalten und werden tabellarisch dargestellt
 
 Bei der 5-Punkte-Zusammenfassung der Diesel-Preise fällt auf das Ausreißer existieren. Dies wird durch den überdurchschnittlichen Abstand des kleinsten Wertes zum 1. Quartil besonders deutlich. Um die Ausreißer besser zu erkennen, wird ein Boxplot der Diesel-Preise verwendet.
 
-```{r}
+```{r, out.width = "100%"}
 # Werteverteilung der Spalte "diesel_median"
 boxplot(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise (Diesel)", ylab = "Preis in 1/10 Cent", col = "lightblue")
 ```
 
 Dem angezeigten Boxplot ist zu entnehmen das Ausreißer in der Spalte "diesel_median" vorhanden sind. Da der Ausreißer bei ca. 80 Cent liegt und keine vergleichbaren Werte in der Nähe vorhanden sind, wird der Ausreißer als fehlerhafter Wert betrachtet. Um die Daten zu bereinigen und unser Ergebnis nicht zu verfälschen, wird der fehlerhafte Wert entfernt.
 
-```{r}
+```{r, out.width = "100%"}
 # Ausreißer entfernen
 datensatz <- datensatz[datensatz$diesel_median > 1000,]
 # Erneute Überprüfung der Daten
@@ -110,7 +110,7 @@ Der fehlerhafte Wert wurde erfolgreich entfernt und die Verteilung der Kraftstof
 
 Um die Struktur sowie den Inhalt der Daten nachzuvollziehen werden die ersten 5 Zeilen des Datensatzes angezeigt.
 
-```{r}
+```{r, out.width = "100%"}
 head(datensatz, 5)
 ```
 
@@ -122,7 +122,7 @@ Aus den ersten 5 Zeilen des Datensatzes können wir erkennen, dass die Daten die
 
 Für eine erste Überprüfung der Daten werden Anzahl der Tankstellen, Beobachtungen, Marken, Straßen, Postleitzahlen, Öffnungszeiten, Schließzeiten und Daten ermittelt. Dazu werden die Anzahl der einzigartigen Werte in den jeweiligen Spalten gezählt.
 
-```{r}
+```{r, out.width = "100%"}
 uebersicht <- data.frame(
   Kategorie = c("Anzahl der Tankstellen", "Anzahl der Beobachtungen", "Anzahl der Marken", "Anzahl der Straßen", "Anzahl der Postleitzahlen", "Anzahl der Öffnungszeiten", "Anzahl der Schließzeiten", "Anzahl der Daten"),
   Anzahl = c(length(unique(datensatz$id)), nrow(datensatz), length(unique(datensatz$brand)), length(unique(datensatz$street)), length(unique(datensatz$post_code)), length(unique(datensatz$opening_time)), length(unique(datensatz$closing_time)), length(unique(datensatz$date)))
@@ -143,12 +143,12 @@ Die 259 einzigartigen Datumswerte zeigen, dass die Daten über einen längeren Z
 
 Nun wird die Häufigkeitsverteilung der Kraftstoffpreise für E5, E10 und Diesel untersucht. Dazu werden Histogramme für jeden Kraftstofftyp erstellt welche die Verteilungen der Preise anzeigen. Hiermit wird ein Vergleich der Preisverteilung zwischen den Kraftstoffarten ermöglicht.
 
-```{r}
+```{r, out.width = "100%"}
 # Histogramme für jeden Kraftstofftyp auf gleicher Skala
 par(mfrow = c(1, 3))
-hist(datensatz$e5_median, main = "Verteilung der Kraftstoffpreise (E5)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 15, ylim = c(0, 60000), xlim = c(1500, 2300))
-hist(datensatz$e10_median, main = "Verteilung der Kraftstoffpreise (E10)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 15, ylim = c(0, 60000), xlim = c(1500, 2300))
-hist(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise (Diesel)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 15, ylim = c(0, 60000), xlim = c(1500, 2300))
+hist(datensatz$e5_median, main = "Verteilung der Kraftstoffpreise\n(E5)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 15, ylim = c(0, 60000), xlim = c(1500, 2300))
+hist(datensatz$e10_median, main = "Verteilung der Kraftstoffpreise\n(E10)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 15, ylim = c(0, 60000), xlim = c(1500, 2300))
+hist(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise\n(Diesel)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 15, ylim = c(0, 60000), xlim = c(1500, 2300))
 ```
 
 Aus den Histogrammen ist erkennbar, dass die Verteilungen der Kraftstoffpreise für E5 und E10 ähnlich sind, während die Verteilung der Dieselpreise davon abweicht. Dies legt nahe, dass die Preise für E5 und E10 stärker miteinander korrelieren könnten als die Preise für Diesel.
@@ -161,11 +161,11 @@ Der Schwerpunkt der Preise liegt bei: - E5: etwa 182 Cent, - E10: etwa 177 Cent,
 
 Anhand einer abweichenden Gruppierung werden neue Histogramme erstellt, um die Verteilung der Kraftstoffpreise genauer zu untersuchen.
 
-```{r}
+```{r, out.width = "100%"}
 par(mfrow = c(1, 3))
-hist(datensatz$e5_median, main = "Verteilung der Kraftstoffpreise (E5)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
-hist(datensatz$e10_median, main = "Verteilung der Kraftstoffpreise (E10)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
-hist(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise (Diesel)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+hist(datensatz$e5_median, main = "Verteilung der Kraftstoffpreise\n(E5)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+hist(datensatz$e10_median, main = "Verteilung der Kraftstoffpreise\n(E10)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+hist(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise\n(Diesel)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
 ```
 
 Die neuen Histogramme mit kleineren Gruppierungen bestätigen unsere bisherige Überprüfung der Kraftstoffpreise von E5 und E10. Bei Diesel zeigt sich eine Diskrepanz zum vorherigen Histogramm. Anstatt von einem Peak bei ca. 167 Cent zeigt sich nun ein weiterer Peak bei ca. 180 Cent. Außerdem ist erkennbar, dass die Dieselpreisverteilung deutlich rechtsschief ist. Dies bedeutet, dass es mehr Preise gibt, die sich im günstigeren Bereich befinden als im teureren Bereich.
@@ -174,25 +174,23 @@ Die neuen Histogramme mit kleineren Gruppierungen bestätigen unsere bisherige �
 
 Anschließend werden die Medianpreise, das arithmetische Mittel und die Standardabweichung für E5, E10 und Diesel berechnet und verglichen.
 
-```{r}
+```{r, out.width = "100%"}
 par(mfrow = c(1, 3))
-hist(datensatz$e5_median, main = "Verteilung der Kraftstoffpreise (E5)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
-abline(v = median(datensatz$e5_median), col = "red", lwd = 2)
-abline(v = mean(datensatz$e5_median), col = "blue", lwd = 2)
-abline(v = mean(datensatz$e5_median) + sd(datensatz$e5_median), col = "green", lwd = 2)
-abline(v = mean(datensatz$e5_median) - sd(datensatz$e5_median), col = "green", lwd = 2)
-legend("topright", legend = c("Median", "Arithmetisches Mittel", "Standardabweichung"), col = c("red", "blue", "green"), lty = 1, lwd = 2)
-hist(datensatz$e10_median, main = "Verteilung der Kraftstoffpreise (E10)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
-abline(v = median(datensatz$e10_median), col = "red", lwd = 2)
-abline(v = mean(datensatz$e10_median), col = "blue", lwd = 2)
-abline(v = mean(datensatz$e10_median) + sd(datensatz$e10_median), col = "green", lwd = 2)
-abline(v = mean(datensatz$e10_median) - sd(datensatz$e10_median), col = "green", lwd = 2)
-legend("topright", legend = c("Median", "Arithmetisches Mittel", "Standardabweichung"), col = c("red", "blue", "green"), lty = 1, lwd = 2)
-hist(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise (Diesel)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
-abline(v = median(datensatz$diesel_median), col = "red", lwd = 2)
-abline(v = mean(datensatz$diesel_median), col = "blue", lwd = 2)
-abline(v = mean(datensatz$diesel_median) + sd(datensatz$diesel_median), col = "green", lwd = 2)
-abline(v = mean(datensatz$diesel_median) - sd(datensatz$diesel_median), col = "green", lwd = 2)
+hist(datensatz$e5_median, main = "Verteilung der Kraftstoffpreise\n(E5)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+abline(v = median(datensatz$e5_median), col = "red", lwd = 1)
+abline(v = mean(datensatz$e5_median), col = "blue", lwd = 1)
+abline(v = mean(datensatz$e5_median) + sd(datensatz$e5_median), col = "green", lwd = 1)
+abline(v = mean(datensatz$e5_median) - sd(datensatz$e5_median), col = "green", lwd = 1)
+hist(datensatz$e10_median, main = "Verteilung der Kraftstoffpreise\n(E10)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+abline(v = median(datensatz$e10_median), col = "red", lwd = 1)
+abline(v = mean(datensatz$e10_median), col = "blue", lwd = 1)
+abline(v = mean(datensatz$e10_median) + sd(datensatz$e10_median), col = "green", lwd = 1)
+abline(v = mean(datensatz$e10_median) - sd(datensatz$e10_median), col = "green", lwd = 1)
+hist(datensatz$diesel_median, main = "Verteilung der Kraftstoffpreise\n(Diesel)", xlab = "Preis in 1/10 Cent", col = "lightblue", breaks = 25, ylim = c(0, 22000), xlim = c(1500, 2300))
+abline(v = median(datensatz$diesel_median), col = "red", lwd = 1)
+abline(v = mean(datensatz$diesel_median), col = "blue", lwd = 1)
+abline(v = mean(datensatz$diesel_median) + sd(datensatz$diesel_median), col = "green", lwd = 1)
+abline(v = mean(datensatz$diesel_median) - sd(datensatz$diesel_median), col = "green", lwd = 1)
 legend("topright", legend = c("Median", "Arithmetisches Mittel", "Standardabweichung"), col = c("red", "blue", "green"), lty = 1, lwd = 2)
 ```
 
@@ -200,7 +198,7 @@ In einer ersten grafischen Darstellung werden die Medianpreise, das arithmetisch
 
 Um nicht nur grafisch, sondern auch in tabellarischer Form die Unterschiede zwischen den Kraftstoffarten zu analysieren, werden die Medianpreise, das arithmetische Mittel und die Standardabweichung für E5, E10 und Diesel berechnet und in einer Tabelle dargestellt.
 
-```{r}
+```{r, out.width = "100%"}
 # Medianpreise, arithmetisches Mittel und Standardabweichung für E5, E10 und Diesel
 bez <- c("E5", "E10", "Diesel")
 masd <- data.frame(bez, c(median(datensatz$e5_median), median(datensatz$e10_median), median(datensatz$diesel_median)), round(c(mean(datensatz$e5_median), mean(datensatz$e10_median), mean(datensatz$diesel_median)), 2), round(c(sd(datensatz$e5_median), sd(datensatz$e10_median), sd(datensatz$diesel_median)), 2))
@@ -212,7 +210,7 @@ Die Tabelle zeigt, dass die Standardabweichung bei E5 und E10 fast identisch ist
 
 Als letzter Schritt wird die Streuung der Kraftstoffpreise für E5, E10 und Diesel in einem Boxplot dargestellt, um die Unterschiede in der Verteilung der Preise zu verdeutlichen.
 
-```{r}
+```{r, out.width = "100%"}
 # Verteilung der Kraftstoffpreise nach Kraftstoffart
 boxplot(cbind(datensatz$e5_median, datensatz$e10_median, datensatz$diesel_median), main = "Verteilung der Kraftstoffpreise nach Kraftstoffart", ylab = "Preis in 1/10 Cent", col = "lightblue", names = c("E5", "E10", "Diesel"))
 ```
@@ -230,7 +228,7 @@ Die Preise für Diesel weisen eine größere Streuung auf als die von E5 und E10
 Der Preisverlauf der drei Kraftstoffarten E5, E10 und Diesel wird über die Zeit untersucht. Dazu werden die durchschnittlichen Preise für jeden Tag berechnet und in einem Liniendiagramm dargestellt.
 Als zusätzliche Information werden die Schulferien in Berlin für das Jahr 2023 in das Diagramm eingefügt, sowie die durchschnittlichen Preise für E5, E10 und Diesel als gestrichelte Linie.
 
-```{r}
+```{r, out.width = "100%"}
 # Preisverlauf über Zeit der drei Kraftstoffarten für jeden Tag der durchschnittliche Preis
 # Daten vorbereiten
 datensatz$date <- as.Date(datensatz$date)
@@ -240,16 +238,16 @@ schulferien$StartDate <- as.Date(schulferien$StartDate, format = "%d/%m/%y")
 schulferien$EndDate <- as.Date(schulferien$EndDate, format = "%d/%m/%y")
 # Durchschnittliche Preise für jeden Tag berechnen
 durchschnittspreise <- aggregate(datensatz[,c("e5_median", "e10_median", "diesel_median")], by = list(datensatz$date), FUN = mean)
-plot(durchschnittspreise$Group.1, durchschnittspreise$e5_median, type = "l", col = "blue", xlab = "Datum", ylab = "Preis in 1/10 Cent", main = "Preisverlauf von E5, E10 & Diesel ueber die Zeit", ylim = c(1500, 2000))
+plot(durchschnittspreise$Group.1, durchschnittspreise$e5_median, type = "l", col = "blue", xlab = "Datum", ylab = "Preis in 1/10 Cent", main = "Preisverlauf von E5, E10 & Diesel", ylim = c(1500, 2000))
 lines(durchschnittspreise$Group.1, durchschnittspreise$e10_median, col = "red")
 lines(durchschnittspreise$Group.1, durchschnittspreise$diesel_median, col = "green")
 abline(h = c(1843.16, 1784.32, 1726.11), col = c("blue", "red", "green"), lty = 2)
 for (i in seq_len(nrow(schulferien))) {
   rect(schulferien$StartDate[i], 1500, schulferien$EndDate[i], 2000, col = "lightgrey", border = NA, density = 10)
 }
-legend("bottomleft", legend = c("E5", "E10", "Diesel"), col = c("blue", "red", "green"), lty = 1, bty = "n")
-legend("topright", legend = "Schulferien", fill = "lightgrey", density = 25, bty = "n")
-legend("bottomright", legend = c("E5 - mean", "E10 - mean", "Diesel - mean"), col = c("blue", "red", "green"), lty = 2, bty = "n")
+legend("bottomleft", legend = c("E5", "E10", "Diesel"), col = c("blue", "red", "green"), lty = 1, cex = 0.8)
+legend("topright", legend = "Schulferien", fill = "lightgrey", density = 25, cex = 0.8)
+legend("bottomright", legend = c("E5 - mean", "E10 - mean", "Diesel - mean"), col = c("blue", "red", "green"), lty = 2, cex = 0.8)
 
 ```
 
@@ -261,7 +259,7 @@ Die vorherige Untersuchung der Kraftstoffpreise zeigte, dass die E5 preise tende
 
 Um den Zusammenhang zwischen den Kraftstoffpreisen zu untersuchen, wird die Korrelation zwischen E5, E10 und Diesel berechnet. Dazu wird der Korrelationskoeffizient nach Pearson verwendet und die Ergebnisse in einer Tabelle dargestellt.
 
-```{r}
+```{r, out.width = "100%"}
 cor(datensatz[,c("e5_median", "e10_median", "diesel_median")], method = "pearson")
 ```
 
@@ -292,7 +290,7 @@ Um die Hypothese zu überprüfen, wird die Varianz der Kraftstoffpreise an versc
 
 Um die Varianz der Kraftstoffpreise an verschiedenen Wochentagen zu berechnen, werden die Daten nach Wochentagen gruppiert und die Varianz der Preise für E5, E10 und Diesel berechnet. Anschließend werden die Ergebnisse in einem Barplot dargestellt.
 
-```{r}
+```{r, out.width = "100%"}
 # Daten nach Wochentagen gruppieren
 datensatz$day <- weekdays(datensatz$date)
 # Varianz der Kraftstoffpreise an verschiedenen Wochentagen berechnen
@@ -313,15 +311,15 @@ names(varianz_e10) <- c("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So")
 names(varianz_diesel) <- c("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So")
 # Dreifacher Barplot der Varianz der Kraftstoffpreise an verschiedenen Wochentagen nach Kraftstoffart
 par(mfrow = c(1, 3))
-barplot(varianz_e5, main = "Varianz der Kraftstoffpreise \n an verschiedenen Wochentagen (E5)", ylab = "Varianz", col = ifelse(names(varianz_e5) == "Fr", "orange", "lightblue"), ylim = c(0, 11000))
+barplot(varianz_e5, main = "Varianz der Kraftstoffpreise\nan verschiedenen\nWochentagen (E5)", ylab = "Varianz", col = ifelse(names(varianz_e5) == "Fr", "orange", "lightblue"), ylim = c(0, 11000))
 abline(h = mean(varianz_e5), col = "red", lwd = 2)
-legend("topright", legend = c("Durchschnittliche Varianz"), col = "red", lty = 1, bty = "n", cex = 1.5)
-barplot(varianz_e10, main = "(E10)", ylab = "Varianz", col = ifelse(names(varianz_e10) == "Fr", "orange", "lightblue"), ylim = c(0, 11000))
+legend("topright", legend = "Durchschn. Varianz", col = "red", lty = 1, bty = "n", cex = 0.8)
+barplot(varianz_e10, main = "Varianz der Kraftstoffpreise\nan verschiedenen\nWochentagen (E10)", ylab = "Varianz", col = ifelse(names(varianz_e10) == "Fr", "orange", "lightblue"), ylim = c(0, 11000))
 abline(h = mean(varianz_e10), col = "red", lwd = 2)
-legend("topright", legend = c("Durchschnittliche Varianz"), col = "red", lty = 1, bty = "n", cex = 1.5)
-barplot(varianz_diesel, main = "(Diesel)", ylab = "Varianz", col = ifelse(names(varianz_diesel) == "Fr", "orange", "lightblue"), ylim = c(0, 11000))
+legend("topright", legend = "Durchschn. Varianz", col = "red", lty = 1, bty = "n", cex = 0.8)
+barplot(varianz_diesel, main = "Varianz der Kraftstoffpreise\nan verschiedenen\nWochentagen (Diesel)", ylab = "Varianz", col = ifelse(names(varianz_diesel) == "Fr", "orange", "lightblue"), ylim = c(0, 11000))
 abline(h = mean(varianz_diesel), col = "red", lwd = 2)
-legend("topright", legend = c("Durchschnittliche Varianz"), col = "red", lty = 1, bty = "n", cex = 1.5)
+legend("topright", legend = "Durchschn. Varianz", col = "red", lty = 1, bty = "n", cex = 0.8)
 ```
 
 Die drei Barplots visualisieren die Varianz der Kraftstoffpreise für E5, E10 und Diesel an verschiedenen Wochentagen. Die orangefarbenen Balken markieren die Werte für Freitage, während die blauen Balken die übrigen Wochentage repräsentieren. Die rote Linie stellt die durchschnittliche Varianz über alle Wochentage hinweg dar und bietet eine klare Referenz für den Vergleich der Freitage mit dem Durchschnitt sowie mit anderen Wochentagen.
@@ -344,8 +342,8 @@ Die Kraftstoffpreise steigen an den Tagen vor Feiertagen stärker an als vor nor
 
 ```{r}
 # Feiertagskalender wird importiert
-feiertage <- read.csv2("feiertage2023berlin.csv", header = TRUE, sep = ";", dec = ".")
-feiertage
+# feiertage <- read.csv2("feiertage2023berlin.csv", header = TRUE, sep = ";", dec = ".")
+# feiertage
 
 ```
 
